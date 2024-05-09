@@ -10,7 +10,7 @@ class SpotifyAuthNotifier extends ChangeNotifier {
   Future<String> Function(String authUri)? getCodeFromWebView;
   final SharedPreferencesService _prefs = SharedPreferencesService();
   User? user;
-  List<TrackSimple> playHistory = [];
+  List<Track> playHistory = [];
 
   final _scopes = [
     AuthorizationScope.user.readPrivate,
@@ -79,12 +79,14 @@ class SpotifyAuthNotifier extends ChangeNotifier {
   }
 
   Future<void> recentlyPlayed() async {
+    playHistory.clear();
     var stream = spotify?.me.recentlyPlayed().stream();
+
     if(stream != null) {
       await for (final page in stream) {
         for(var pH in page.items!) {
           playHistory.add(pH.track!);
-          print(pH.track?.artists?[0].images?[0].url);
+          // print(pH.track?.album?.images?[0].url);
         }
       }
     }

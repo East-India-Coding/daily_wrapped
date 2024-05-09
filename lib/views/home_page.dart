@@ -1,3 +1,4 @@
+import 'package:daily_wrapped/views/recently_played_page.dart';
 import 'package:daily_wrapped/views/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_carousel/flutter_custom_carousel.dart';
@@ -76,7 +77,7 @@ class MenuCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: example.color,
+          gradient: example.gradient,
           image: DecorationImage(
             image: AssetImage('assets/images/${example.img}.png'),
             fit: BoxFit.cover,
@@ -166,13 +167,13 @@ class MenuItemData {
   const MenuItemData({
     required this.img,
     required this.title,
-    required this.color,
+    required this.gradient,
     required this.builder,
   });
 
   final String img;
   final String title;
-  final Color color;
+  final Gradient gradient;
   final WidgetBuilder builder;
 }
 
@@ -180,31 +181,65 @@ final List<MenuItemData> menuItems = [
   MenuItemData(
     img: 'weekend-removebg-preview',
     title: 'Recently Played',
-    color: AppColors.maroon,
-    builder: (_) => const HomePage(),
+    gradient: const LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        AppColors.maroon,
+        Colors.black
+      ]
+    ),
+    builder: (_) => const RecentlyPlayedPage(),
   ),
   MenuItemData(
     img: 'taylor',
     title: 'Top Artists',
-    color: AppColors.skyBlue,
+    gradient: const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          AppColors.skyBlue,
+          AppColors.skyWhite,
+        ]
+    ),
     builder: (_) => const HomePage(),
   ),
   MenuItemData(
     img: 'dua',
     title: 'Top Songs',
-    color: AppColors.pinkishWhite,
-    builder: (_) => const HomePage(),
+    gradient: const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          AppColors.purple,
+          AppColors.skyWhite,
+        ]
+    ),    builder: (_) => const HomePage(),
   ),
   MenuItemData(
     img: 'eminem',
     title: 'Your music personality',
-    color: AppColors.pinkishWhite,
+    gradient: const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          AppColors.skyBlue,
+          AppColors.skyWhite,
+        ]
+    ),
     builder: (_) => const HomePage(),
   ),
   MenuItemData(
     img: 'harry',
     title: 'Your mood based on your recent plays',
-    color: AppColors.pink,
+    gradient: const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          AppColors.skyBlue,
+          AppColors.skyWhite,
+        ]
+    ),
     builder: (_) => const HomePage(),
   ),
 ];

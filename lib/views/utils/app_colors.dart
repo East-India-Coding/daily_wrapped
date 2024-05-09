@@ -7,8 +7,9 @@ class AppColors {
   static const bgBlack = Color(0xFF151530);
   static const maroon = Color(0xFF3C0A12);
   static const skyBlue = Color(0xFF5884A9);
+  static const skyWhite = Color(0xFFBDC0CA);
   static const pink = Color(0xFFF774C4);
   static const salmonOrange = Color(0xFFE5AB8A);
-  static const pinkishWhite = Color(0xFFdacae4);
+  static const purple = Color(0xffCD98EE);
   static const textColor = Color(0xFF333333);
 }

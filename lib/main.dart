@@ -2,13 +2,23 @@ import 'package:daily_wrapped/services/shared_preferences_services.dart';
 import 'package:daily_wrapped/views/auth_page.dart';
 import 'package:daily_wrapped/providers/spotify_auth_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gemini/flutter_gemini.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  init();
+  runApp(const MyApp());
+}
+
+void init() async {
   final sharedPreferencesService = SharedPreferencesService();
   sharedPreferencesService.init();
-  runApp(const MyApp());
+  await dotenv.load(fileName: ".env");
+  final apiKey = dotenv.env['gemini_api_key'];
+  Gemini.init(apiKey: "$apiKey");
 }
 
 class MyApp extends StatelessWidget {
@@ -16,20 +26,28 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<SpotifyAuthNotifier>(
-            create: (_) => SpotifyAuthNotifier()),
-      ],
-      child: MaterialApp(
-        title: 'Daily Wrapped',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
-        home: const AuthPage(),
-        debugShowCheckedModeBanner: false,
-      ),
+    return ScreenUtilInit(
+      designSize: const Size(360, 690),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (_, child) {
+        return MultiProvider(
+          providers: [
+            ChangeNotifierProvider<SpotifyAuthNotifier>(
+                create: (_) => SpotifyAuthNotifier()),
+          ],
+          child: MaterialApp(
+            title: 'Daily Wrapped',
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+              useMaterial3: true,
+            ),
+            home: child,
+            debugShowCheckedModeBanner: false,
+          ),
+        );
+      },
+      child: const AuthPage(),
     );
   }
 }
