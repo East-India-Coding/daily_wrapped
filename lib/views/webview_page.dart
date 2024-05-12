@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-
-import '../providers/spotify_auth_notifier.dart';
 
 class WebViewPage extends StatefulWidget {
   final String url;

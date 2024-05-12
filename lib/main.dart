@@ -1,6 +1,7 @@
+import 'package:daily_wrapped/providers/gemini_notifier.dart';
 import 'package:daily_wrapped/services/shared_preferences_services.dart';
 import 'package:daily_wrapped/views/auth_page.dart';
-import 'package:daily_wrapped/providers/spotify_auth_notifier.dart';
+import 'package:daily_wrapped/providers/spotify_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -33,14 +34,17 @@ class MyApp extends StatelessWidget {
       builder: (_, child) {
         return MultiProvider(
           providers: [
-            ChangeNotifierProvider<SpotifyAuthNotifier>(
-                create: (_) => SpotifyAuthNotifier()),
+            ChangeNotifierProvider<SpotifyNotifier>(
+                create: (_) => SpotifyNotifier()),
+            ChangeNotifierProvider<GeminiNotifier>(
+                create: (_) => GeminiNotifier()),
           ],
           child: MaterialApp(
             title: 'Daily Wrapped',
             theme: ThemeData(
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
               useMaterial3: true,
+              fontFamily: 'Franie'
             ),
             home: child,
             debugShowCheckedModeBanner: false,

@@ -2,7 +2,7 @@ import 'package:daily_wrapped/views/webview_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/spotify_auth_notifier.dart';
+import '../providers/spotify_notifier.dart';
 import 'home_page.dart';
 
 class AuthPage extends StatefulWidget {
@@ -20,7 +20,7 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   init() async {
-    final provider = context.read<SpotifyAuthNotifier>();
+    final provider = context.read<SpotifyNotifier>();
     provider.getCodeFromWebView = _handleWebViewNavigation;
     await provider.userLogin();
     await provider.getUserDetails();
@@ -32,7 +32,7 @@ class _AuthPageState extends State<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<SpotifyAuthNotifier>().user;
+    final user = context.watch<SpotifyNotifier>().user;
 
     return Scaffold(
       body: SafeArea(

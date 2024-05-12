@@ -1,8 +1,11 @@
-import 'package:daily_wrapped/views/recently_played_page.dart';
+import 'package:daily_wrapped/views/sharable_story_page.dart';
 import 'package:daily_wrapped/views/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_carousel/flutter_custom_carousel.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import 'card_deck_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,7 +20,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bgBlack,
+      backgroundColor: AppColors.backgroundBlack,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: _buildCarousel(),
@@ -139,7 +142,7 @@ class MenuCard extends StatelessWidget {
 
   Widget _buildTryBtn() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+      padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 7.h),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(999),
@@ -189,7 +192,7 @@ final List<MenuItemData> menuItems = [
         Colors.black
       ]
     ),
-    builder: (_) => const RecentlyPlayedPage(),
+    builder: (_) => const CardDeckPage(),
   ),
   MenuItemData(
     img: 'taylor',

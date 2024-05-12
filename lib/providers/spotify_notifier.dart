@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:spotify/spotify.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-class SpotifyAuthNotifier extends ChangeNotifier {
+class SpotifyNotifier extends ChangeNotifier {
   SpotifyApi? spotify;
   Future<String> Function(String authUri)? getCodeFromWebView;
   final SharedPreferencesService _prefs = SharedPreferencesService();
@@ -78,7 +78,7 @@ class SpotifyAuthNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> recentlyPlayed() async {
+  Future<List<Track>> recentlyPlayed() async {
     playHistory.clear();
     var stream = spotify?.me.recentlyPlayed().stream();
 
@@ -91,5 +91,7 @@ class SpotifyAuthNotifier extends ChangeNotifier {
       }
     }
     notifyListeners();
+
+    return playHistory;
   }
 }
