@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:daily_wrapped/models/spotify_api_credentials_extensions.dart';
+import 'package:daily_wrapped/models/extensions/spotify_api_credentials_extensions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spotify/spotify.dart';
 

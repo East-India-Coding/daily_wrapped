@@ -11,6 +11,8 @@ class SpotifyNotifier extends ChangeNotifier {
   final SharedPreferencesService _prefs = SharedPreferencesService();
   User? user;
   List<Track> playHistory = [];
+  List<Artist> topArtists = [];
+  List<Track> topSongs = [];
 
   final _scopes = [
     AuthorizationScope.user.readPrivate,
@@ -93,5 +95,37 @@ class SpotifyNotifier extends ChangeNotifier {
     notifyListeners();
 
     return playHistory;
+  }
+
+  Future<List<Artist>> getTopArtists() async {
+    topArtists.clear();
+    var stream = spotify?.me.topArtists().stream();
+
+    if(stream != null) {
+      await for (final page in stream) {
+        for(var artist in page.items!) {
+          topArtists.add(artist);
+        }
+      }
+    }
+    notifyListeners();
+
+    return topArtists;
+  }
+
+  Future<List<Track>> getTopSongs() async {
+    topSongs.clear();
+    var stream = spotify?.me.topTracks().stream();
+
+    if(stream != null) {
+      await for (final page in stream) {
+        for(var song in page.items!) {
+          topSongs.add(song);
+        }
+      }
+    }
+    notifyListeners();
+
+    return topSongs;
   }
 }

@@ -1,3 +1,5 @@
+import 'package:daily_wrapped/models/enums.dart';
+import 'package:daily_wrapped/models/extensions/enum_extensions.dart';
 import 'package:daily_wrapped/views/sharable_story_page.dart';
 import 'package:daily_wrapped/views/utils/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -97,7 +99,7 @@ class MenuCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 2.0),
               child: Text(
-                example.title,
+                example.cardType.convertToTitle(),
                 style: const TextStyle(
                   fontSize: 22,
                   fontFamily: 'Franie',
@@ -169,13 +171,13 @@ class MenuCard extends StatelessWidget {
 class MenuItemData {
   const MenuItemData({
     required this.img,
-    required this.title,
+    required this.cardType,
     required this.gradient,
     required this.builder,
   });
 
   final String img;
-  final String title;
+  final MenuCardType cardType;
   final Gradient gradient;
   final WidgetBuilder builder;
 }
@@ -183,7 +185,7 @@ class MenuItemData {
 final List<MenuItemData> menuItems = [
   MenuItemData(
     img: 'weekend-removebg-preview',
-    title: 'Recently Played',
+    cardType: MenuCardType.recentlyPlayed,
     gradient: const LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
@@ -192,11 +194,11 @@ final List<MenuItemData> menuItems = [
         Colors.black
       ]
     ),
-    builder: (_) => const CardDeckPage(),
+    builder: (_) => const CardDeckPage(MenuCardType.recentlyPlayed),
   ),
   MenuItemData(
     img: 'taylor',
-    title: 'Top Artists',
+    cardType: MenuCardType.topArtists,
     gradient: const LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
@@ -205,11 +207,11 @@ final List<MenuItemData> menuItems = [
           AppColors.skyWhite,
         ]
     ),
-    builder: (_) => const HomePage(),
+    builder: (_) => const CardDeckPage(MenuCardType.topArtists),
   ),
   MenuItemData(
     img: 'dua',
-    title: 'Top Songs',
+    cardType: MenuCardType.topSongs,
     gradient: const LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
@@ -217,11 +219,12 @@ final List<MenuItemData> menuItems = [
           AppColors.purple,
           AppColors.skyWhite,
         ]
-    ),    builder: (_) => const HomePage(),
+    ),
+    builder: (_) => const CardDeckPage(MenuCardType.topSongs),
   ),
   MenuItemData(
     img: 'eminem',
-    title: 'Your music personality',
+    cardType: MenuCardType.musicPersonality,
     gradient: const LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
@@ -230,11 +233,11 @@ final List<MenuItemData> menuItems = [
           AppColors.skyWhite,
         ]
     ),
-    builder: (_) => const HomePage(),
+    builder: (_) => const CardDeckPage(MenuCardType.musicPersonality),
   ),
   MenuItemData(
     img: 'harry',
-    title: 'Your mood based on your recent plays',
+    cardType: MenuCardType.musicMood,
     gradient: const LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
@@ -243,6 +246,6 @@ final List<MenuItemData> menuItems = [
           AppColors.skyWhite,
         ]
     ),
-    builder: (_) => const HomePage(),
+    builder: (_) => const CardDeckPage(MenuCardType.musicMood),
   ),
 ];

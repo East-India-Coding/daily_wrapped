@@ -1,3 +1,5 @@
+import 'package:daily_wrapped/models/enums.dart';
+import 'package:daily_wrapped/models/extensions/enum_extensions.dart';
 import 'package:daily_wrapped/views/sharable_story_page.dart';
 import 'package:daily_wrapped/views/utils/app_colors.dart';
 import 'package:daily_wrapped/views/utils/utils.dart';
@@ -11,7 +13,9 @@ import '../providers/gemini_notifier.dart';
 import '../providers/spotify_notifier.dart';
 
 class CardDeckPage extends StatefulWidget {
-  const CardDeckPage({super.key});
+  const CardDeckPage(this.cardType, {super.key});
+
+  final MenuCardType cardType;
 
   @override
   State<CardDeckPage> createState() => _CardDeckPageState();
@@ -31,15 +35,41 @@ class _CardDeckPageState extends State<CardDeckPage> {
 
   _init() async {
     final spotifyProvider = context.read<SpotifyNotifier>();
-    spotifyProvider.recentlyPlayed().then((pH) => context
-        .read<GeminiNotifier>()
-        .getRecentlyPlayedPersonality(pH)
-        .then((_) => _shuffleDeck.call()));
+    switch (widget.cardType) {
+      case MenuCardType.topArtists:
+        spotifyProvider.getTopArtists().then((val) => context
+            .read<GeminiNotifier>()
+            .getTopArtistsPersonality(val)
+            .then((_) => Future.delayed(500.ms, _shuffleDeck)));
+        break;
+
+      case MenuCardType.topSongs:
+        spotifyProvider.getTopSongs().then((val) => context
+            .read<GeminiNotifier>()
+            .getTopSongsPersonality(val)
+            .then((_) => Future.delayed(500.ms, _shuffleDeck)));
+        break;
+
+      default:
+        spotifyProvider.recentlyPlayed().then((pH) => context
+            .read<GeminiNotifier>()
+            .getRecentlyPlayedPersonality(pH)
+            .then((_) => Future.delayed(500.ms, _shuffleDeck)));
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final geminiOutput = context.watch<GeminiNotifier>().recentlyPlayedOutput;
+    final provider = context.watch<GeminiNotifier>();
+    List<String?> geminiOutput = [];
+    if (widget.cardType == MenuCardType.topArtists) {
+      geminiOutput = provider.topArtistsOutput;
+    } else if (widget.cardType == MenuCardType.topSongs) {
+      geminiOutput = provider.topSongsOutput;
+    } else {
+      geminiOutput = provider.recentlyPlayedOutput;
+    }
 
     return Scaffold(
       backgroundColor: AppColors.backgroundBlack,
@@ -56,7 +86,7 @@ class _CardDeckPageState extends State<CardDeckPage> {
                       padding:
                           EdgeInsets.only(top: 16.h, left: 6.w, right: 6.w),
                       child: Text(
-                        "Recently Played",
+                        widget.cardType.convertToTitle(),
                         style: TextStyle(
                             fontSize: 30.sp,
                             color: Colors.white,
@@ -78,8 +108,8 @@ class _CardDeckPageState extends State<CardDeckPage> {
   }
 
   Widget _buildCarousel(List<String?> geminiOutput) {
-    List<Widget> items = List.generate(
-        _cardIndexes.length, (i) => _Card(_cardIndexes[i], geminiOutput));
+    List<Widget> items = List.generate(_cardIndexes.length,
+        (i) => _Card(widget.cardType, _cardIndexes[i], geminiOutput));
 
     return CustomCarousel(
       // Enable `sticky` physics so you can only "throw" one card at a time:
@@ -218,7 +248,9 @@ class _CardDeckPageState extends State<CardDeckPage> {
 }
 
 class _Card extends StatelessWidget {
-  const _Card(this.index, this.geminiOutput, {super.key});
+  const _Card(this.cardType, this.index, this.geminiOutput, {super.key});
+
+  final MenuCardType cardType;
 
   // index for bg cover - geminiOutput for text
   final int index;
@@ -228,11 +260,15 @@ class _Card extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget card = GestureDetector(
       onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (c) => Scaffold(
-                  backgroundColor: Colors.black87,
-                  body: SharableStoryPage(geminiOutput[index])))),
+        context,
+        MaterialPageRoute(
+          builder: (c) => Scaffold(
+            backgroundColor: Colors.black87,
+            body: SharableStoryPage(
+                getBgType(index), cardType, geminiOutput[index]),
+          ),
+        ),
+      ),
       child: AspectRatio(
         aspectRatio: 2 / 3,
         child: Container(
@@ -253,45 +289,26 @@ class _Card extends StatelessWidget {
   }
 
   Widget? cardWidget() {
-    print(index);
-    if (index == 0) {
-      return ClipRect(child: SharableStoryPage(geminiOutput[index]));
-    }
-
-    if (index == 1) {
-      return Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/squares.jpg'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: textOverlay(geminiOutput[index]),
-      );
-    }
-
-    if (index == 2) {
-      return ClipRect(
-          child: SharableStoryPage(
+    return ClipRect(
+      child: SharableStoryPage(
+        getBgType(index),
+        cardType,
         geminiOutput[index],
-        isRotated: false,
-      ));
-    }
-
-    if (index == 3) {
-      return Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/moon.jpg'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: textOverlay(geminiOutput[index]),
-      );
-    }
-
-    return Container(
-      color: Colors.black,
+      ),
     );
+  }
+
+  BackgroundType getBgType(int index) {
+    switch (index) {
+      case 0:
+        return BackgroundType.albumCovers;
+
+      case 1:
+      case 3:
+        return BackgroundType.image;
+
+      default:
+        return BackgroundType.albumCoversRotated;
+    }
   }
 }
