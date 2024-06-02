@@ -7,8 +7,6 @@ import 'package:flutter_custom_carousel/flutter_custom_carousel.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'card_deck_page.dart';
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -194,7 +192,7 @@ final List<MenuItemData> menuItems = [
         Colors.black
       ]
     ),
-    builder: (_) => const CardDeckPage(MenuCardType.recentlyPlayed),
+    builder: (_) => const SharableStoryPage(MenuCardType.recentlyPlayed),
   ),
   MenuItemData(
     img: 'taylor',
@@ -207,7 +205,7 @@ final List<MenuItemData> menuItems = [
           AppColors.skyWhite,
         ]
     ),
-    builder: (_) => const CardDeckPage(MenuCardType.topArtists),
+    builder: (_) => const SharableStoryPage(MenuCardType.topArtists),
   ),
   MenuItemData(
     img: 'dua',
@@ -220,7 +218,7 @@ final List<MenuItemData> menuItems = [
           AppColors.skyWhite,
         ]
     ),
-    builder: (_) => const CardDeckPage(MenuCardType.topSongs),
+    builder: (_) => const SharableStoryPage(MenuCardType.topSongs),
   ),
   MenuItemData(
     img: 'eminem',
@@ -233,7 +231,7 @@ final List<MenuItemData> menuItems = [
           AppColors.skyWhite,
         ]
     ),
-    builder: (_) => const CardDeckPage(MenuCardType.musicPersonality),
+    builder: (_) => const SharableStoryPage(MenuCardType.musicPersonality),
   ),
   MenuItemData(
     img: 'harry',
@@ -246,6 +244,6 @@ final List<MenuItemData> menuItems = [
           AppColors.skyWhite,
         ]
     ),
-    builder: (_) => const CardDeckPage(MenuCardType.musicMood),
+    builder: (_) => const SharableStoryPage(MenuCardType.musicMood),
   ),
 ];

@@ -1,21 +1,25 @@
+import 'dart:async';
 import 'dart:math' as math;
+import 'dart:math';
 
+import 'package:daily_wrapped/providers/interaction_notifier.dart';
 import 'package:daily_wrapped/providers/spotify_notifier.dart';
+import 'package:daily_wrapped/views/utils/app_colors.dart';
 import 'package:daily_wrapped/views/utils/utils.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import '../models/enums.dart';
+import '../providers/gemini_notifier.dart';
+import 'full_tile_page.dart';
 
 class SharableStoryPage extends StatefulWidget {
-  const SharableStoryPage(this.bgType, this.cardType, this.geminiOutput,
-      {super.key});
+  const SharableStoryPage(this.cardType, {super.key});
 
-  final BackgroundType bgType;
   final MenuCardType cardType;
-  final String? geminiOutput;
 
   @override
   State<SharableStoryPage> createState() => _SharableStoryPageState();
@@ -23,128 +27,162 @@ class SharableStoryPage extends StatefulWidget {
 
 class _SharableStoryPageState extends State<SharableStoryPage> {
   Set<String?> imagesSet = {};
+  late TransformationController _transformationController;
 
   @override
   void initState() {
-    fillImagesSet();
+    _init();
+    _transformationController = TransformationController();
+
+    // Create a 2D rotation matrix
+    Matrix4 rotationMatrix = Matrix4.identity()..rotateZ(-math.pi / 9);
+    Matrix4 scalingMatrix = Matrix4.identity()..scale(3.5);
+
+    // Combine the rotation and scaling matrices
+    _transformationController.value = rotationMatrix * scalingMatrix;
     super.initState();
   }
 
-  fillImagesSet() {
-    final provider = context.read<SpotifyNotifier>();
+  void _onInteractionUpdate(ScaleUpdateDetails details) {
+    context.read<InteractionNotifier>().setIsInteracting(true);
+  }
 
+  void _onInteractionEnd(ScaleEndDetails details) {
+    Future.delayed(const Duration(milliseconds: 600), () {
+      context.read<InteractionNotifier>().setIsInteracting(false);
+    });
+  }
+
+  _init() async {
+    final spotifyProvider = context.read<SpotifyNotifier>();
+    final geminiProvider = context.read<GeminiNotifier>();
     switch (widget.cardType) {
-      case MenuCardType.recentlyPlayed:
-        final pH = provider.playHistory;
-        if (pH.isNotEmpty) {
-          for (final t in pH) {
-            imagesSet.add(t.album?.images?[0].url);
-          }
-        }
-        break;
       case MenuCardType.topArtists:
-        final pH = provider.topArtists;
-        if (pH.isNotEmpty) {
-          for (final artist in pH) {
+        final top = await spotifyProvider.getTopArtists();
+        if (top.isNotEmpty) {
+          for (final artist in top) {
             imagesSet.add(artist.images?[0].url);
           }
         }
+        geminiProvider.getTopArtistsPersonality(top);
         break;
+
       case MenuCardType.topSongs:
-        final pH = provider.topSongs;
-        if (pH.isNotEmpty) {
-          for (final t in pH) {
+        final top = await spotifyProvider.getTopSongs();
+        if (top.isNotEmpty) {
+          for (final t in top) {
             imagesSet.add(t.album?.images?[0].url);
           }
         }
+        geminiProvider.getTopSongsPersonality(top);
+        break;
+
+      case MenuCardType.recentlyPlayed:
+        final top = await spotifyProvider.recentlyPlayed();
+        if (top.isNotEmpty) {
+          for (final t in top) {
+            imagesSet.add(t.album?.images?[0].url);
+          }
+        }
+        geminiProvider.getRecentlyPlayedPersonality(top);
         break;
       case MenuCardType.musicPersonality:
       // TODO: Handle this case.
       case MenuCardType.musicMood:
       // TODO: Handle this case.
+
+      default:
+        final top = await spotifyProvider.getTopArtists();
+        if (top.isNotEmpty) {
+          for (final artist in top) {
+            imagesSet.add(artist.images?[0].url);
+          }
+        }
+        geminiProvider.getTopArtistsPersonality(top);
+        break;
     }
   }
 
   @override
+  void dispose() {
+    _transformationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        getBackground(widget.bgType),
-        textOverlay(widget.geminiOutput),
-        // shareButtons
-        // Row(
-        //   children: [
-        //     Container(
-        //       decoration: BoxDecoration(
-        //         shape: ,
-        //       ),
-        //       child: IconButton(
-        //         icon: Icon(
-        //
-        //         ), onPressed: () {  },
-        //       ),
-        //     )
-        //   ],
-        // )
-      ],
+    final geminiOutput = context.watch<GeminiNotifier>().geminiOutput;
+    return Scaffold(
+      backgroundColor: AppColors.backgroundBlack,
+      body: geminiOutput == null
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : PopScope(
+              onPopInvoked: (_) {
+                context.read<GeminiNotifier>().clearGeminiOutput();
+              },
+              child: Stack(
+                children: [
+                  InteractiveViewer(
+                    alignment: Alignment.center,
+                    boundaryMargin: const EdgeInsets.all(
+                      double.infinity,
+                    ),
+                    minScale: 3.5,
+                    onInteractionUpdate: _onInteractionUpdate,
+                    onInteractionEnd: _onInteractionEnd,
+                    maxScale: 5.5,
+                    transformationController: _transformationController,
+                    child: gridView(),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Consumer<InteractionNotifier>(
+                        builder: (context, ref, child) {
+                      return AnimatedOpacity(
+                          opacity: ref.isInteracting ? 0 : 1,
+                          duration: const Duration(milliseconds: 600),
+                          child: textOverlay(context, geminiOutput.title));
+                    }),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 
-  gridView() => GridView.custom(
-        gridDelegate: SliverQuiltedGridDelegate(
-          crossAxisCount: 4,
-          mainAxisSpacing: 4,
-          crossAxisSpacing: 4,
-          repeatPattern: QuiltedGridRepeatPattern.inverted,
-          pattern: [
-            const QuiltedGridTile(2, 2),
-            const QuiltedGridTile(1, 1),
-            const QuiltedGridTile(1, 1),
-            const QuiltedGridTile(1, 2),
-          ],
+  gridView() => GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 8,
+          childAspectRatio: 1.0,
         ),
         physics: const NeverScrollableScrollPhysics(),
-        childrenDelegate: SliverChildBuilderDelegate(
-          (context, index) => tile(imagesSet.toList(), index),
-        ),
+        itemBuilder: (BuildContext context, int index) {
+          return tile(imagesSet.toList());
+        },
       );
 
-  tile(List<String?> images, int index) {
-    return Container(
-      margin: EdgeInsets.all(4.w),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(
-          Radius.circular(20.r),
+  tile(List<String?> images) {
+    final index = Random().nextInt(images.length);
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (c) => FullTilePage(images[index])));
+      },
+      child: Container(
+        margin: EdgeInsets.all(2.w),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(
+            Radius.circular(4.r),
+          ),
+          image: DecorationImage(
+              image: NetworkImage(
+                "${images[index]}",
+              ),
+              fit: BoxFit.cover),
         ),
-        image: DecorationImage(
-            image: NetworkImage(
-              "${index >= images.length ? images[0] : images[index]}",
-            ),
-            fit: BoxFit.cover),
       ),
     );
-  }
-
-  Widget getBackground(BackgroundType bgType) {
-    switch (bgType) {
-      case BackgroundType.image:
-        return Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage("assets/images/squares.jpg"),
-                fit: BoxFit.cover),
-          ),
-        );
-      case BackgroundType.albumCovers:
-        return gridView();
-      case BackgroundType.albumCoversRotated:
-        return Transform.rotate(
-          angle: -math.pi / 9,
-          child: Transform.scale(
-            scale: 1.75,
-            child: gridView(),
-          ),
-        );
-    }
   }
 }

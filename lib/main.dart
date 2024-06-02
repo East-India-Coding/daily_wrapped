@@ -1,4 +1,5 @@
 import 'package:daily_wrapped/providers/gemini_notifier.dart';
+import 'package:daily_wrapped/providers/interaction_notifier.dart';
 import 'package:daily_wrapped/services/shared_preferences_services.dart';
 import 'package:daily_wrapped/views/auth_page.dart';
 import 'package:daily_wrapped/providers/spotify_notifier.dart';
@@ -38,6 +39,8 @@ class MyApp extends StatelessWidget {
                 create: (_) => SpotifyNotifier()),
             ChangeNotifierProvider<GeminiNotifier>(
                 create: (_) => GeminiNotifier()),
+            ChangeNotifierProvider<InteractionNotifier>(
+                create: (_) => InteractionNotifier()),
           ],
           child: MaterialApp(
             title: 'Daily Wrapped',

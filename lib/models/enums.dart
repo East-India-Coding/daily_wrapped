@@ -5,9 +5,3 @@ enum MenuCardType {
   musicPersonality,
   musicMood,
 }
-
-enum BackgroundType {
-  image,
-  albumCovers,
-  albumCoversRotated,
-}
