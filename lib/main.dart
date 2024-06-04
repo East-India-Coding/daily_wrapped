@@ -7,8 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gemini/flutter_gemini.dart';
 
+// 1. seclude the spotify package
+// 2. use the gemini official package --done
+// 3. add loading cassette animation --done
+// 4. add share functionality
+// 5. add preview music in the shared video
+// 6. login page UI
+// 7. deploy on play store
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   init();
@@ -19,8 +25,6 @@ void init() async {
   final sharedPreferencesService = SharedPreferencesService();
   sharedPreferencesService.init();
   await dotenv.load(fileName: ".env");
-  final apiKey = dotenv.env['gemini_api_key'];
-  Gemini.init(apiKey: "$apiKey");
 }
 
 class MyApp extends StatelessWidget {

@@ -1,5 +1,5 @@
 import 'package:daily_wrapped/providers/gemini_notifier.dart';
-import 'package:daily_wrapped/views/utils/app_colors.dart';
+import 'package:daily_wrapped/views/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -32,7 +32,7 @@ class FullTilePage extends StatelessWidget {
                     child: Align(
                       alignment: Alignment.bottomLeft,
                       child: Container(
-                        padding: EdgeInsets.all(8.w),
+                        padding: EdgeInsets.only(top: 8.h),
                         width: double.infinity,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -44,12 +44,18 @@ class FullTilePage extends StatelessWidget {
                             ],
                           ),
                         ),
-                        child: Text(
-                          geminiOutput.title,
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 25.sp,
-                            fontWeight: FontWeight.bold,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 15.w,
+                            vertical: 2.h,
+                          ),
+                          child: Text(
+                            geminiOutput.title,
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 25.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
@@ -57,17 +63,21 @@ class FullTilePage extends StatelessWidget {
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 18.w,
-                      vertical: 2.h,
+                      horizontal: 16.w,
+                      vertical: 6.h,
                     ),
                     child: Text(
                       geminiOutput.description,
                       style: TextStyle(
                         color: Colors.white70,
-                        fontSize: 16.sp,
+                        fontSize: 15.sp,
                       ),
                     ),
                   ),
+                  SizedBox(
+                    height: 8.h,
+                  ),
+                  sliderButton(),
                 ],
               ),
             ),

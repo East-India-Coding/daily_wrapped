@@ -28,7 +28,7 @@ class GeminiDescriptionBottomSheet extends StatelessWidget {
                 "$desc",
                 style: TextStyle(
                   color: Colors.white70,
-                  fontSize: 16.sp,
+                  fontSize: 15.sp,
                 ),
                 textAlign: TextAlign.center,
               ),

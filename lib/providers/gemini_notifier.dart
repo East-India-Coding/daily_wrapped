@@ -2,11 +2,27 @@ import 'dart:convert';
 
 import 'package:daily_wrapped/models/gemini_output.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gemini/flutter_gemini.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:spotify/spotify.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 
 class GeminiNotifier extends ChangeNotifier {
   GeminiOutput? geminiOutput;
+  GenerativeModel? _model;
+
+  GeminiNotifier() {
+    if(_model != null) return;
+
+    final apiKey = dotenv.env['gemini_api_key'];
+    if (apiKey != null) {
+      _model = GenerativeModel(
+        model: 'gemini-1.5-flash-latest',
+        apiKey: apiKey,
+        generationConfig:
+            GenerationConfig(responseMimeType: 'application/json'),
+      );
+    }
+  }
 
   clearGeminiOutput() {
     geminiOutput = null;
@@ -19,13 +35,11 @@ class GeminiNotifier extends ChangeNotifier {
       songsList.add(track.name ?? "Back to me");
     }
 
-    final gemini = Gemini.instance;
-
     try {
-      final output = await gemini
-          .text(inputFormatting('recently listened songs are', songsList));
-      print(output?.output);
-      geminiOutput = GeminiOutput.fromJson(outputFormatting(output?.output));
+      final output = await _model?.generateContent(
+        inputFormatting('recently listened songs are', songsList),
+      );
+      geminiOutput = GeminiOutput.fromJson(outputFormatting(output?.text));
     } catch (e) {
       print(e);
       geminiOutput =
@@ -42,12 +56,10 @@ class GeminiNotifier extends ChangeNotifier {
       artistsList.add("${artist.name}($genre)");
     }
 
-    final gemini = Gemini.instance;
-
     try {
-      final output =
-          await gemini.text(inputFormatting('top artists are', artistsList));
-      geminiOutput = GeminiOutput.fromJson(outputFormatting(output?.output));
+      final output = await _model
+          ?.generateContent(inputFormatting('top artists are', artistsList));
+      geminiOutput = GeminiOutput.fromJson(outputFormatting(output?.text));
     } catch (e) {
       print(e);
       geminiOutput =
@@ -63,13 +75,10 @@ class GeminiNotifier extends ChangeNotifier {
       songsList.add("${song.name}");
     }
 
-    final gemini = Gemini.instance;
-
     try {
-      final output =
-          await gemini.text(inputFormatting('top songs are', songsList));
-      print(output?.output);
-      geminiOutput = GeminiOutput.fromJson(outputFormatting(output?.output));
+      final output = await _model
+          ?.generateContent(inputFormatting('top songs are', songsList));
+      geminiOutput = GeminiOutput.fromJson(outputFormatting(output?.text));
     } catch (e) {
       print(e);
       geminiOutput =
@@ -79,18 +88,18 @@ class GeminiNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  String inputFormatting(String str, List<String> list) =>
-      """aggressively roast my music taste if my $str: $list. 
-               Return the result in stringified JSON using the following structure:
-               { "title" : \$title, "description" : \ndescription } 
-               Don't include characters that mess up json decode.
+  inputFormatting(String str, List<String> list) {
+    String prompt = """aggressively roast my music taste if my $str: $list. 
+               Return the result in JSON using the following structure:
+               { "title" : \$title, "description" : \ndescription }
+               title should have 10 words maximum.
                """;
+    return [
+      Content.text(prompt),
+    ];
+  }
 
   Map<String, dynamic> outputFormatting(String? output) {
-    return jsonDecode(output
-            ?.replaceAll("```", "")
-            .replaceAll("json", "")
-            .replaceAll('\n', '\\n') ??
-        "");
+    return jsonDecode(output ?? "");
   }
 }

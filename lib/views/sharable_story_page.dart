@@ -6,11 +6,10 @@ import 'package:daily_wrapped/providers/interaction_notifier.dart';
 import 'package:daily_wrapped/providers/spotify_notifier.dart';
 import 'package:daily_wrapped/views/utils/app_colors.dart';
 import 'package:daily_wrapped/views/utils/utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:rive/rive.dart';
 
 import '../models/enums.dart';
 import '../providers/gemini_notifier.dart';
@@ -116,7 +115,9 @@ class _SharableStoryPageState extends State<SharableStoryPage> {
       backgroundColor: AppColors.backgroundBlack,
       body: geminiOutput == null
           ? const Center(
-              child: CircularProgressIndicator(),
+              child: RiveAnimation.asset(
+                'assets/casette_loading.riv',
+                fit: BoxFit.cover,),
             )
           : PopScope(
               onPopInvoked: (_) {
